@@ -1,6 +1,5 @@
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 /**
@@ -29,11 +28,13 @@ public class  Main {
         }
     }
 
-    public static int klotskiBfs() {
+
+    private static int klotskiBfs() {
         Queue<Block[]> queue = new LinkedList<>();
         Queue<Integer> depthQueue = new LinkedList<>();
 
-        List<int[][]> visited = new ArrayList<>();
+        //List<int[][]> visited = new ArrayList<>();
+        HashSet<KlotskiState> visited = new HashSet<>();
 
         queue.add(new Block[] {
                 new Block(1, 0, 2, 2, 1),
@@ -50,13 +51,14 @@ public class  Main {
         depthQueue.add(0);
 
 
-        visited.add(new int[][]{
+        KlotskiState initialState = new KlotskiState(new int[][]{
                 {2, 1, 1, 2},
                 {2, 1, 1, 2},
                 {2, 3, 3, 2},
                 {2, 4, 4, 2},
                 {0, 4, 4, 0}
         });
+        visited.add(initialState);
 
         // List<int[]{left, top, width, height, type}>
 
@@ -100,10 +102,9 @@ public class  Main {
                         Block[] neighbor = makeBlocksCopy(node);
                         neighbor[block_index].left--;
                         queue.add(neighbor);
-                        depthQueue.add(depth+1);
-                        visited.add(newState);
+                        depthQueue.add(depth + 1);
+                        visited.add(new KlotskiState(newState));
                     }
-
                 }
 
                 if (block.top > 0 && state[block.top - 1][block.left] == 0
@@ -123,7 +124,7 @@ public class  Main {
                         neighbor[block_index].top--;
                         queue.add(neighbor);
                         depthQueue.add(depth+1);
-                        visited.add(newState);
+                        visited.add(new KlotskiState(newState));
                     }
 
                 }
@@ -145,7 +146,7 @@ public class  Main {
                         neighbor[block_index].left++;
                         queue.add(neighbor);
                         depthQueue.add(depth+1);
-                        visited.add(newState);
+                        visited.add(new KlotskiState(newState));
                     }
                 }
 
@@ -167,7 +168,7 @@ public class  Main {
                         neighbor[block_index].top++;
                         queue.add(neighbor);
                         depthQueue.add(depth+1);
-                        visited.add(newState);
+                        visited.add(new KlotskiState(newState));
                     }
                 }
             }
@@ -179,28 +180,12 @@ public class  Main {
 
 
 
-    private static boolean isVisited(List<int[][]> visited, int[][] newState) {
-        for (int[][] visitedState : visited) {
-            boolean isSame = true;
-            for (int i=0; i<visitedState.length; i++) {
-                for (int j = 0; j < visitedState[0].length; j++) {
-                    if (visitedState[i][j] != newState[i][j]){
-                        isSame = false;
-                        break;
-                    }
-                }
-                if (!isSame) {
-                    break;
-                }
-            }
-            if (isSame) {
-                return true;
-            }
-        }
-        return false;
+    private static boolean isVisited(HashSet<KlotskiState> visited, int[][] newState) {
+        KlotskiState newKlotskiState = new KlotskiState(newState);
+        return visited.contains(newKlotskiState);
     }
 
-    public static int[][] makeStateCopy(int[][] a) {
+    private static int[][] makeStateCopy(int[][] a) {
         int[][] b = new int[a.length][a[0].length];
         for (int i = 0; i < a.length; i++) {
             for (int j = 0; j < a[0].length; j++) {
@@ -210,7 +195,7 @@ public class  Main {
         return b;
     }
 
-    public static Block[] makeBlocksCopy(Block[] blocks) {
+    private static Block[] makeBlocksCopy(Block[] blocks) {
         Block[] newBlocks = new Block[blocks.length];
         for (int i = 0; i < blocks.length; i++) {
             newBlocks[i] = new Block(blocks[i]);
